@@ -5,7 +5,7 @@ A production-ready .NET Core 8.0 MVC application with real-time WebSocket notifi
 **Created by:** [Anil Prajapati](mailto:anil.personal.me@gmail.com)  
 **Open Source Project** - Free for everyone to use and contribute!
 
-[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-Support%20Development-orange?style=flat-square&logo=buy-me-a-coffee)](https://www.buymeacoffee.com/anilprajapati)
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-Support%20Development-orange?style=flat-square&logo=buy-me-a-coffee)](https://buymeacoffee.com/anilperson9)
 
 ## 🚀 Features
 
@@ -245,7 +245,7 @@ Contributions are welcome! This project is open source and free for everyone.
 
 If this project helped you, consider supporting its development:
 
-[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-Support%20Development-orange?style=for-the-badge&logo=buy-me-a-coffee)](https://www.buymeacoffee.com/anilprajapati)
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-Support%20Development-orange?style=for-the-badge&logo=buy-me-a-coffee)](https://buymeacoffee.com/anilperson9)
 
 Your support helps maintain and improve this project for the community!
 
