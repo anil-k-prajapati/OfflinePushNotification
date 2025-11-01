@@ -1,0 +1,45 @@
+/* FontAwesome Fallback - Basic icon styles for offline use */
+
+.fas, .fa {
+    font-family: Arial, sans-serif;
+    font-style: normal;
+    font-weight: bold;
+    display: inline-block;
+    text-decoration: none;
+}
+
+/* Icon replacements with Unicode symbols */
+.fa-bell::before, .fas.fa-bell::before { content: "🔔"; }
+.fa-paper-plane::before, .fas.fa-paper-plane::before { content: "✈️"; }
+.fa-user::before, .fas.fa-user::before { content: "👤"; }
+.fa-users::before, .fas.fa-users::before { content: "👥"; }
+.fa-plug::before, .fas.fa-plug::before { content: "🔌"; }
+.fa-send::before, .fas.fa-send::before { content: "📤"; }
+.fa-trash::before, .fas.fa-trash::before { content: "🗑️"; }
+.fa-bell-slash::before, .fas.fa-bell-slash::before { content: "🔕"; }
+.fa-clock::before, .fas.fa-clock::before { content: "🕐"; }
+.fa-check::before, .fas.fa-check::before { content: "✓"; }
+.fa-check-circle::before, .fas.fa-check-circle::before { content: "✅"; }
+.fa-circle::before, .fas.fa-circle::before { content: "●"; }
+.fa-spinner::before, .fas.fa-spinner::before { content: "⟳"; }
+
+/* Spinning animation for spinner */
+.fa-spin {
+    animation: fa-spin 2s infinite linear;
+}
+
+@keyframes fa-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(359deg); }
+}
+
+/* Size variations */
+.fa-2x { font-size: 2em; }
+.fa-3x { font-size: 3em; }
+
+/* Color classes */
+.text-success { color: #28a745; }
+.text-danger { color: #dc3545; }
+.text-warning { color: #ffc107; }
+.text-info { color: #17a2b8; }
+.text-muted { color: #6c757d; }

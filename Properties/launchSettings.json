@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "OfflinePushNotification": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:58406;http://localhost:58407"
+    }
+  }
+}
