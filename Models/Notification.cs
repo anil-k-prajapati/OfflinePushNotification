@@ -8,6 +8,9 @@ namespace OfflinePushNotification.Models
         public string Type { get; set; } = "info"; // info, success, warning, error
         public int? UserId { get; set; }
         public string? UserGroup { get; set; }
+        public string? ImageUrl { get; set; }
+        public string? ActionText { get; set; }
+        public string? ActionUrl { get; set; }
         public bool IsRead { get; set; } = false;
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime? ReadAt { get; set; }

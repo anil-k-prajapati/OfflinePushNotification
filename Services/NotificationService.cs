@@ -15,7 +15,7 @@ namespace OfflinePushNotification.Services
             _logger = logger;
         }
 
-        public async Task<int> CreateNotificationAsync(string title, string message, string type = "info", int? userId = null, string? userGroup = null)
+        public async Task<int> CreateNotificationAsync(string title, string message, string type = "info", int? userId = null, string? userGroup = null, string? imageUrl = null, string? actionText = null, string? actionUrl = null)
         {
             var parameters = new[]
             {
@@ -23,7 +23,10 @@ namespace OfflinePushNotification.Services
                 new MySqlParameter("@p_Message", message),
                 new MySqlParameter("@p_Type", type),
                 new MySqlParameter("@p_UserId", userId.HasValue ? userId.Value : DBNull.Value),
-                new MySqlParameter("@p_UserGroup", userGroup ?? (object)DBNull.Value)
+                new MySqlParameter("@p_UserGroup", userGroup ?? (object)DBNull.Value),
+                new MySqlParameter("@p_ImageUrl", imageUrl ?? (object)DBNull.Value),
+                new MySqlParameter("@p_ActionText", actionText ?? (object)DBNull.Value),
+                new MySqlParameter("@p_ActionUrl", actionUrl ?? (object)DBNull.Value)
             };
 
             var notificationId = await _dbHelper.ExecuteScalarAsync<int>("sp_CreateNotification", parameters);
@@ -76,6 +79,9 @@ namespace OfflinePushNotification.Services
                 Type = reader.GetString(reader.GetOrdinal("Type")),
                 UserId = reader.IsDBNull(reader.GetOrdinal("UserId")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("UserId")),
                 UserGroup = reader.IsDBNull(reader.GetOrdinal("UserGroup")) ? (string?)null : reader.GetString(reader.GetOrdinal("UserGroup")),
+                ImageUrl = reader.IsDBNull(reader.GetOrdinal("ImageUrl")) ? (string?)null : reader.GetString(reader.GetOrdinal("ImageUrl")),
+                ActionText = reader.IsDBNull(reader.GetOrdinal("ActionText")) ? (string?)null : reader.GetString(reader.GetOrdinal("ActionText")),
+                ActionUrl = reader.IsDBNull(reader.GetOrdinal("ActionUrl")) ? (string?)null : reader.GetString(reader.GetOrdinal("ActionUrl")),
                 IsRead = reader.GetBoolean(reader.GetOrdinal("IsRead")),
                 CreatedAt = reader.GetDateTime(reader.GetOrdinal("CreatedAt")),
                 ReadAt = reader.IsDBNull(reader.GetOrdinal("ReadAt")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("ReadAt")),

@@ -34,14 +34,14 @@ namespace OfflinePushNotification.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> SendNotification(string title, string message, string type, int? userId)
+        public async Task<IActionResult> SendNotification(string title, string message, string type, int? userId, string? imageUrl, string? actionText, string? actionUrl)
         {
             try
             {
                 if (userId.HasValue)
                 {
                     // Send to specific user
-                    var notificationId = await _notificationService.CreateNotificationAsync(title, message, type, userId);
+                    var notificationId = await _notificationService.CreateNotificationAsync(title, message, type, userId, null, imageUrl, actionText, actionUrl);
                     
                     await _hubContext.Clients.Group($"User_{userId}").SendAsync("ReceiveNotification", new
                     {
@@ -49,6 +49,9 @@ namespace OfflinePushNotification.Controllers
                         Title = title,
                         Message = message,
                         Type = type,
+                        ImageUrl = imageUrl,
+                        ActionText = actionText,
+                        ActionUrl = actionUrl,
                         CreatedAt = DateTime.Now
                     });
 
@@ -57,7 +60,7 @@ namespace OfflinePushNotification.Controllers
                 else
                 {
                     // Broadcast to all users
-                    var notificationId = await _notificationService.CreateNotificationAsync(title, message, type);
+                    var notificationId = await _notificationService.CreateNotificationAsync(title, message, type, null, null, imageUrl, actionText, actionUrl);
                     
                     await _hubContext.Clients.All.SendAsync("ReceiveNotification", new
                     {
@@ -65,6 +68,9 @@ namespace OfflinePushNotification.Controllers
                         Title = title,
                         Message = message,
                         Type = type,
+                        ImageUrl = imageUrl,
+                        ActionText = actionText,
+                        ActionUrl = actionUrl,
                         CreatedAt = DateTime.Now
                     });
 

@@ -1,7 +1,14 @@
-// SignalR Connection
+// Global variables
 let connection = null;
-let currentUserId = null;
 let isConnected = false;
+let currentUserId = null;
+
+// Configuration
+const notificationConfig = {
+    autoHideDelay: 5000, // 5 seconds - change this to adjust auto-hide timing
+    showImages: true,
+    showActions: true
+};
 
 // Initialize SignalR connection
 function initializeSignalR() {
@@ -102,13 +109,22 @@ function displayNotification(notification) {
     const notificationMessage = notification.Message || notification.message || 'No message';
     const notificationId = notification.Id || notification.id || 0;
     const notificationCreatedAt = notification.CreatedAt || notification.createdAt || new Date();
+    const notificationImageUrl = notification.ImageUrl || notification.imageUrl;
+    const notificationActionText = notification.ActionText || notification.actionText;
+    const notificationActionUrl = notification.ActionUrl || notification.actionUrl;
     
     notificationElement.className = `notification-item notification-${notificationType}`;
     notificationElement.innerHTML = `
         <div class="d-flex justify-content-between align-items-start">
             <div class="flex-grow-1">
+                ${notificationImageUrl ? `<img src="${escapeHtml(notificationImageUrl)}" alt="Notification Image" class="notification-image mb-2" style="max-width: 100%; height: auto; border-radius: 5px;">` : ''}
                 <h6 class="mb-1">${escapeHtml(notificationTitle)}</h6>
                 <p class="mb-1">${escapeHtml(notificationMessage)}</p>
+                ${notificationActionText && notificationActionUrl ? `<div class="mb-2">
+                    <a href="${escapeHtml(notificationActionUrl)}" target="_blank" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-external-link-alt"></i> ${escapeHtml(notificationActionText)}
+                    </a>
+                </div>` : ''}
                 <small class="text-muted">
                     <i class="fas fa-clock"></i> ${formatDateTime(notificationCreatedAt)}
                 </small>
@@ -135,14 +151,64 @@ function showBrowserNotification(notification) {
         const title = notification.Title || notification.title || 'Notification';
         const message = notification.Message || notification.message || 'New notification received';
         const id = notification.Id || notification.id || Date.now();
+        const imageUrl = notification.ImageUrl || notification.imageUrl;
+        const actionText = notification.ActionText || notification.actionText;
+        const actionUrl = notification.ActionUrl || notification.actionUrl;
         
-        console.log("Showing browser notification:", { title, message, id });
+        console.log("Showing browser notification:", { title, message, id, imageUrl, actionText, actionUrl });
         
-        new Notification(title, {
+        // Build notification options
+        const options = {
             body: message,
             icon: '/favicon.ico',
-            tag: `notification-${id}`
-        });
+            tag: `notification-${id}`,
+            requireInteraction: false, // Allow auto-hide
+            silent: false
+        };
+        
+        // Add image if provided
+        if (imageUrl) {
+            options.image = imageUrl;
+        }
+        
+        // Add action info to notification body (more reliable than action buttons)
+        if (actionText && actionUrl) {
+            options.body += `\n\n👆 Click to: ${actionText}`;
+            options.data = { actionUrl: actionUrl }; // Store URL for click handling
+        }
+        
+        const browserNotification = new Notification(title, options);
+        
+        // Auto-hide notification after configured delay (if enabled)
+        const autoHideDelay = notificationConfig.autoHideDelay;
+        if (autoHideDelay > 0) {
+            setTimeout(() => {
+                try {
+                    browserNotification.close();
+                    console.log(`Notification auto-closed after ${autoHideDelay/1000} seconds`);
+                } catch (error) {
+                    // Notification might already be closed by user
+                    console.log('Notification already closed or error closing:', error.message);
+                }
+            }, autoHideDelay);
+        } else {
+            console.log('Auto-hide disabled - notification will stay until manually closed');
+        }
+        
+        // Handle notification click (fallback for all browsers)
+        browserNotification.onclick = function(event) {
+            event.preventDefault();
+            console.log('Notification clicked');
+            if (actionUrl) {
+                console.log('Opening action URL:', actionUrl);
+                window.open(actionUrl, '_blank');
+            }
+            browserNotification.close();
+        };
+        
+        // Note: Action button clicks are handled by Service Worker
+        // because the Notification API's action events don't work reliably in all browsers
+        
     } else {
         console.log("Browser notifications not permitted");
     }
@@ -151,8 +217,49 @@ function showBrowserNotification(notification) {
 // Request notification permission
 function requestNotificationPermission() {
     if ("Notification" in window && Notification.permission === "default") {
-        Notification.requestPermission();
+        Notification.requestPermission().then(function(permission) {
+            console.log('Notification permission:', permission);
+            if (permission === 'granted') {
+                console.log('Browser notification features supported:');
+                console.log('- Actions:', 'actions' in Notification.prototype);
+                console.log('- Image:', 'image' in Notification.prototype);
+                console.log('- Data:', 'data' in Notification.prototype);
+            }
+        });
     }
+}
+
+// Debug function to test notification features
+function testNotificationFeatures() {
+    if (Notification.permission !== 'granted') {
+        console.log('Please grant notification permission first');
+        return;
+    }
+    
+    console.log('Testing notification with action button...');
+    
+    const testNotification = new Notification('Test Rich Notification', {
+        body: 'This is a test notification with clickable action\n\n👆 Click to: Visit Example Site',
+        icon: '/favicon.ico',
+        image: 'https://via.placeholder.com/300x150/007bff/ffffff?text=Test+Image',
+        data: { actionUrl: 'https://example.com' },
+        tag: 'test-notification'
+    });
+    
+    testNotification.onclick = function() {
+        console.log('Test notification clicked');
+        window.open('https://example.com', '_blank');
+        testNotification.close();
+    };
+    
+    // Auto-close after 10 seconds
+    setTimeout(() => {
+        try {
+            testNotification.close();
+        } catch (e) {
+            console.log('Test notification already closed');
+        }
+    }, 10000);
 }
 
 // Form handlers
@@ -189,6 +296,9 @@ document.getElementById('notificationForm').addEventListener('submit', function(
     const message = document.getElementById('message').value;
     const type = document.getElementById('type').value;
     const userId = document.getElementById('userId').value;
+    const imageUrl = document.getElementById('imageUrl').value;
+    const actionText = document.getElementById('actionText').value;
+    const actionUrl = document.getElementById('actionUrl').value;
     
     if (!isConnected) {
         alert("Not connected to server");
@@ -205,14 +315,16 @@ document.getElementById('notificationForm').addEventListener('submit', function(
             title: title,
             message: message,
             type: type,
-            userId: userId || ''
+            userId: userId || '',
+            imageUrl: imageUrl || '',
+            actionText: actionText || '',
+            actionUrl: actionUrl || ''
         })
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Clear form
-            document.getElementById('notificationForm').reset();
+            // Don't clear form - keep values for testing
             showToast("Notification sent successfully!", "success");
         } else {
             showToast("Error: " + data.message, "error");
@@ -373,6 +485,37 @@ function clearNotifications() {
     }
 }
 
+// Update notification configuration
+function updateNotificationConfig() {
+    const autoHideSelect = document.getElementById('autoHideDelay');
+    if (autoHideSelect) {
+        notificationConfig.autoHideDelay = parseInt(autoHideSelect.value);
+        console.log(`Auto-hide delay updated to: ${notificationConfig.autoHideDelay > 0 ? notificationConfig.autoHideDelay/1000 + ' seconds' : 'disabled'}`);
+        
+        // Save to localStorage for persistence
+        localStorage.setItem('notificationConfig', JSON.stringify(notificationConfig));
+    }
+}
+
+// Load saved configuration on page load
+function loadNotificationConfig() {
+    try {
+        const saved = localStorage.getItem('notificationConfig');
+        if (saved) {
+            const savedConfig = JSON.parse(saved);
+            Object.assign(notificationConfig, savedConfig);
+            
+            // Update UI to reflect saved settings
+            const autoHideSelect = document.getElementById('autoHideDelay');
+            if (autoHideSelect) {
+                autoHideSelect.value = notificationConfig.autoHideDelay.toString();
+            }
+        }
+    } catch (error) {
+        console.log('Error loading notification config:', error);
+    }
+}
+
 // Utility functions
 function escapeHtml(text) {
     if (!text) return '';
@@ -423,9 +566,10 @@ function showToast(message, type) {
 
 // Initialize when page loads
 document.addEventListener('DOMContentLoaded', function() {
+    loadNotificationConfig(); // Load saved settings first
     initializeSignalR();
-    loadUsers();
     requestNotificationPermission();
+    loadUsers();
     
     // Refresh users every 30 seconds
     setInterval(loadUsers, 30000);

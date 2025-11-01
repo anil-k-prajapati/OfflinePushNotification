@@ -40,6 +40,34 @@ self.addEventListener('sync', function(event) {
     }
 });
 
+// Handle notification clicks
+self.addEventListener('notificationclick', function(event) {
+    console.log('Service Worker: Notification clicked', {
+        data: event.notification.data,
+        tag: event.notification.tag
+    });
+    
+    event.notification.close();
+    
+    // Open action URL if available, otherwise focus the app
+    if (event.notification.data && event.notification.data.actionUrl) {
+        console.log('Service Worker: Opening action URL:', event.notification.data.actionUrl);
+        event.waitUntil(
+            clients.openWindow(event.notification.data.actionUrl)
+        );
+    } else {
+        console.log('Service Worker: No action URL, focusing app');
+        event.waitUntil(
+            clients.matchAll({ type: 'window' }).then(function(clientList) {
+                if (clientList.length > 0) {
+                    return clientList[0].focus();
+                }
+                return clients.openWindow('/');
+            })
+        );
+    }
+});
+
 function syncNotifications() {
     // Sync offline notifications when connection is restored
     console.log('Service Worker: Syncing notifications');

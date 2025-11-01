@@ -39,6 +39,44 @@ body {
     box-shadow: 0 4px 8px rgba(0,0,0,0.15) !important;
 }
 
+/* Notification animations */
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Rich notification styles */
+.notification-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 10px;
+}
+
+.notification-item .btn-outline-primary {
+    border-color: #007bff;
+    color: #007bff;
+    font-size: 0.875rem;
+    padding: 0.25rem 0.5rem;
+}
+
+.notification-item .btn-outline-primary:hover {
+    background-color: #007bff;
+    color: white;
+}
+
 .card {
     border: none;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);

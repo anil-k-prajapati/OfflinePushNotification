@@ -21,6 +21,9 @@ CREATE TABLE IF NOT EXISTS Notifications (
     Type ENUM('info', 'success', 'warning', 'error') DEFAULT 'info',
     UserId INT NULL,
     UserGroup VARCHAR(100) NULL,
+    ImageUrl VARCHAR(500) NULL,
+    ActionText VARCHAR(100) NULL,
+    ActionUrl VARCHAR(500) NULL,
     IsRead BOOLEAN DEFAULT FALSE,
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     ReadAt DATETIME NULL,
@@ -70,11 +73,14 @@ CREATE PROCEDURE sp_CreateNotification(
     IN p_Message TEXT,
     IN p_Type VARCHAR(20),
     IN p_UserId INT,
-    IN p_UserGroup VARCHAR(100)
+    IN p_UserGroup VARCHAR(100),
+    IN p_ImageUrl VARCHAR(500),
+    IN p_ActionText VARCHAR(100),
+    IN p_ActionUrl VARCHAR(500)
 )
 BEGIN
-    INSERT INTO Notifications (Title, Message, Type, UserId, UserGroup, CreatedAt)
-    VALUES (p_Title, p_Message, p_Type, p_UserId, p_UserGroup, NOW());
+    INSERT INTO Notifications (Title, Message, Type, UserId, UserGroup, ImageUrl, ActionText, ActionUrl, CreatedAt)
+    VALUES (p_Title, p_Message, p_Type, p_UserId, p_UserGroup, p_ImageUrl, p_ActionText, p_ActionUrl, NOW());
     
     SELECT LAST_INSERT_ID() as NotificationId;
 END //
@@ -87,7 +93,7 @@ CREATE PROCEDURE sp_GetUserNotifications(
     IN p_Limit INT
 )
 BEGIN
-    SELECT Id, Title, Message, Type, UserId, UserGroup, IsRead, CreatedAt, ReadAt, IsDelivered, DeliveredAt
+    SELECT Id, Title, Message, Type, UserId, UserGroup, ImageUrl, ActionText, ActionUrl, IsRead, CreatedAt, ReadAt, IsDelivered, DeliveredAt
     FROM Notifications
     WHERE UserId = p_UserId OR UserId IS NULL
     ORDER BY CreatedAt DESC
